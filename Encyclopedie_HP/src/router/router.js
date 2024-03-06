@@ -1,15 +1,14 @@
-import Vue from 'vue';
-import Router from 'vue-router';
-import Character from '../components/character.vue';
+import { createRouter, createWebHistory } from 'vue-router'
+import Accueil from '../components/Accueil.vue'
+import Character from '../components/character.vue'
 
-Vue.use(Router);
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    { path: '/', component: Accueil },
+    { path: '/character', component: Character },
+    // Ajoutez d'autres routes ici
+  ]
+})
 
-export default new Router({
-    routes: [
-        {
-            path: '/characters',
-            name: 'characters',
-            component: Character,
-        },
-    ],
-});
+export default router
