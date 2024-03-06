@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
 import './style.css'
 import App from './App.vue'
-import Char from './components/character.vue'
+import router from './router/router.js' // Assurez-vous que le chemin est correct
 
-createApp(Char).mount('#app')
+createApp(App).use(router).mount('#app')

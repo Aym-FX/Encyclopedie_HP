@@ -1,10 +1,6 @@
-<script setup>
-import Accueil from './components/Accueil.vue'
-</script>
-
 <template>
   <div id="app">
-    <Accueil />
+    <router-view/>
   </div>
 </template>
 
