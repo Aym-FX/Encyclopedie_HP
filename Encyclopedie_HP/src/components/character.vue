@@ -1,19 +1,20 @@
 <template>
     <div class="characters-page">
         <h1>Page des personnages</h1>
+        <input type="text" v-model="searchTerm" placeholder="Rechercher un personnage">
         <ul class="characters-list">
-            <li class="character-item" v-for="character in characters" :key="character.id">
+            <li class="character-item" v-for="character in filteredCharacters" :key="character.id">
                 <h2 class="character-name">{{ character.attributes.name }}</h2>
                 <p class="character-info">Affiliation : {{ character.attributes.house || 'Non disponible' }}</p>
                 <p class="character-info">Biographie : {{ character.attributes.jobs[0] || 'Non disponible' }}</p>
             </li>
         </ul>
-        <button @click="goToFirstPage" :disabled="page.number === 1">Première page</button>
-        <button @click="previousPage" :disabled="page.number === 1">Page précédente</button>
-        <button @click="nextPage" :disabled="page.number === totalPages">Page suivante</button>
-        <button @click="goToLastPage" :disabled="page.number === totalPages">Dernière page</button>
+        <button @click="goToFirstPage" :disabled="page.number === 1"><<</button>
+        <button @click="previousPage" :disabled="page.number === 1"><</button>
+        <button @click="nextPage" :disabled="page.number === totalPages">></button>
+        <button @click="goToLastPage" :disabled="page.number === totalPages">>></button>
         <input type="number" v-model.number="page.number" @change="fetchCharacters" :min="1" :max="totalPages">
-        <p>Page actuelle : {{ page.number }}</p>
+        <p>Page actuelle : {{ page.number }} / {{ totalPages }}</p>
     </div>
 </template>
 
@@ -28,23 +29,35 @@ export default {
                 number: 1,
                 size: 25,
             },
-            totalPages: 0,
+            totalPages: 187,
+            searchTerm: '',
+            searchResultsPageCount: 0,
         };
     },
     created() {
         this.fetchCharacters();
     },
-    methods: {
-        fetchCharacters() {
-            axios.get(`https://api.potterdb.com/v1/characters?page[number]=${this.page.number}&page[size]=${this.page.size}`)
-                .then(response => {
-                    this.characters = response.data.data;
-                    this.totalPages = Math.ceil(response.data.meta.total / this.page.size);
-                })
-                .catch(error => {
-                    console.error(error);
-                });
+    computed: {
+        filteredCharacters() {
+            return this.characters.filter(character => 
+                character.attributes.name.toLowerCase().includes(this.searchTerm.toLowerCase())
+            );
         },
+        pageCount() {
+            return Math.ceil(this.filteredCharacters.length / this.page.size);
+        }
+    },
+    methods: {
+    fetchCharacters() {
+        axios.get(`https://api.potterdb.com/v1/characters?page[number]=${this.page.number}&page[size]=${this.page.size}&filter[name]=${this.searchTerm}`)
+            .then(response => {
+                this.characters = response.data.data;
+                this.totalPages = response.data.meta.pageCount;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    },
         nextPage() {
             if (this.page.number < this.totalPages) {
                 this.page.number++;
@@ -70,6 +83,16 @@ export default {
 </script>
 
 <style scoped>
+p{
+    color: black;
+}
+h1{
+    color: black;
+}
+input{
+    background-color: #ffffff;
+    color: black;
+}
 .characters-page {
     padding: 20px;
     background-color: #f9f9f9;
