@@ -13,6 +13,7 @@
         <button @click="previousPage" :disabled="page.number === 1"><</button>
         <button @click="nextPage" :disabled="page.number === totalPages">></button>
         <button @click="goToLastPage" :disabled="page.number === totalPages">>></button>
+        <br>
         <input type="number" v-model.number="page.number" @change="fetchCharacters" :min="1" :max="totalPages">
         <p>Page actuelle : {{ page.number }} / {{ totalPages }}</p>
     </div>
@@ -31,7 +32,6 @@ export default {
             },
             totalPages: 187,
             searchTerm: '',
-            searchResultsPageCount: 0,
         };
     },
     created() {
@@ -43,21 +43,17 @@ export default {
                 character.attributes.name.toLowerCase().includes(this.searchTerm.toLowerCase())
             );
         },
-        pageCount() {
-            return Math.ceil(this.filteredCharacters.length / this.page.size);
-        }
     },
     methods: {
-    fetchCharacters() {
-        axios.get(`https://api.potterdb.com/v1/characters?page[number]=${this.page.number}&page[size]=${this.page.size}&filter[name]=${this.searchTerm}`)
-            .then(response => {
-                this.characters = response.data.data;
-                this.totalPages = response.data.meta.pageCount;
-            })
-            .catch(error => {
-                console.error(error);
-            });
-    },
+        fetchCharacters() {
+            axios.get(`https://api.potterdb.com/v1/characters?page[number]=${this.page.number}&page[size]=${this.page.size}&filter[name]=${this.searchTerm}`)
+                .then(response => {
+                    this.characters = response.data.data;
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        },
         nextPage() {
             if (this.page.number < this.totalPages) {
                 this.page.number++;
