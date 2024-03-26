@@ -35,7 +35,7 @@ export default {
     },
     methods: {
         fetchBooks() {
-            axios.get(`https://api.bookdb.com/v1/books?filter[name]=${this.searchTerm}`)
+            axios.get('https://api.potterdb.com/v1/books', { params: { filter: { name: this.searchTerm } } })
                 .then(response => {
                     this.books = response.data.data;
                 })

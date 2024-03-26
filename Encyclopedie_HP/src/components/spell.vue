@@ -2,9 +2,9 @@
   <div class="spells-page">
     <button class="home-button" @click="goToHome">Retour à l'accueil</button>
     <h1>Page des sorts</h1>
-    <input type="text" v-model="searchTerm" placeholder="Rechercher un sort" @change="fetchSpells">
+    <input type="text" v-model="searchTerm" placeholder="Rechercher un sort" @change="searchSpells">
     <ul class="spells-list">
-      <li class="spell-item" v-for="spell in spells" :key="potion.id">
+      <li class="spell-item" v-for="spell in spells" :key="spell.id">
         <h2 class="item-name"><span class="subtitle">{{ spell.attributes.name }}</span></h2>
         <img :src="spell.attributes.image" alt="Image du sort" v-if="spell.attributes.image">
         <p class="item-info" v-else>Image non disponible</p>
@@ -27,55 +27,69 @@
 import axios from 'axios';
 
 export default {
-  name: 'Spells',
-  data() {
-    return {
-      potions: [],
-      page: {
-        number: 1,
-        size: 25,
-      },
-      totalPages: 13,
-      searchTerm: '',
-    };
-  },
-  created() {
-    this.fetchSpells();
-  },
-  methods: {
-    fetchSpells() {
-      axios.get(`https://api.potterdb.com/v1/spells?page[number]=${this.page.number}&page[size]=${this.page.size}&filter[name]=${this.searchTerm}`)
-        .then(response => {
-          this.spells = response.data.data;
-        })
-        .catch(error => {
-          console.error(error);
-        });
+    data() {
+        return {
+            spells: [],
+            page: {
+                number: 1,
+                size: 25,
+            },
+            totalPages: 187,
+            searchTerm: '',
+        };
     },
-    nextPage() {
-      if (this.page.number < this.totalPages) {
-        this.page.number++;
+    created() {
         this.fetchSpells();
-      }
     },
-    previousPage() {
-      if (this.page.number > 1) {
-        this.page.number--;
-        this.fetchSpells();
-      }
+    methods: {
+        fetchSpells() {
+            const queryParams = {
+                page: {
+                    number: this.page.number, // Page actuelle
+                    size: this.page.size // Taille de la page
+                },
+                filter: {
+                    name_cont: this.searchTerm // Filtrer par nom contenant le terme de recherche
+                },
+                sort: 'name' // Trier par nom
+            };
+
+            axios.get('https://api.potterdb.com/v1/spells', { params: queryParams })
+                .then(response => {
+                    this.spells = response.data.data;
+                    this.totalPages = response.data.meta.totalPages;
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        },
+        nextPage() {
+            if (this.page.number < this.totalPages) {
+                this.page.number++;
+                this.fetchSpells();
+            }
+        },
+        previousPage() {
+            if (this.page.number > 1) {
+                this.page.number--;
+                this.fetchSpells();
+            }
+        },
+        goToFirstPage() {
+            this.page.number = 1;
+            this.fetchSpells();
+        },
+        goToLastPage() {
+            this.page.number = this.totalPages;
+            this.fetchSpells();
+        },
+        searchSpells() {
+            // Réinitialiser la page à 1 à chaque recherche
+            this.page.number = 1;
+            // Appeler la méthode fetchSpells pour récupérer les données mises à jour
+            this.fetchSpells();
+        },
     },
-    goToFirstPage() {
-      this.page.number = 1;
-      this.fetchSpells();
-    },
-    goToLastPage() {
-      this.page.number = this.totalPages;
-      this.fetchSpells();
-    },
-    goToHome() {
-      this.$router.push('/');
-    },
-  },
 };
 </script>
 
@@ -101,7 +115,7 @@ input{
   color: black;
 }
 
-.spells-item {
+.spell-item {
   margin-bottom: 20px;
   padding: 20px;
   border: 1px solid #ddd;
