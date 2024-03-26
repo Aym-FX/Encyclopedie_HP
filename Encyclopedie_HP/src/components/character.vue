@@ -4,9 +4,11 @@
         <input type="text" v-model="searchTerm" placeholder="Rechercher un personnage">
         <ul class="characters-list">
             <li class="character-item" v-for="character in filteredCharacters" :key="character.id">
-                <h2 class="character-name">{{ character.attributes.name }}</h2>
-                <p class="character-info">Affiliation : {{ character.attributes.house || 'Non disponible' }}</p>
-                <p class="character-info">Biographie : {{ character.attributes.jobs[0] || 'Non disponible' }}</p>
+                <h2 class="character-name"><span class="subtitle">{{ character.attributes.name }}</span></h2>
+                <img :src="character.attributes.image" alt="Image du personnage" v-if="character.attributes.image">
+                <p class="character-info" v-else>Image non disponible</p>
+                <p class="character-info"><span class="subtitle">Affiliation :</span>{{ character.attributes.house || 'Non disponible' }}</p>
+                <p class="character-info"><span class="subtitle">Biographie :</span>{{ character.attributes.jobs[0] || 'Non disponible' }}</p>
             </li>
         </ul>
         <button @click="goToFirstPage" :disabled="page.number === 1"><<</button>
@@ -45,14 +47,26 @@ export default {
         },
     },
     methods: {
-        fetchCharacters() {
-            axios.get(`https://api.potterdb.com/v1/characters?page[number]=${this.page.number}&page[size]=${this.page.size}&filter[name]=${this.searchTerm}`)
-                .then(response => {
-                    this.characters = response.data.data;
-                })
-                .catch(error => {
-                    console.error(error);
-                });
+    fetchCharacters() {
+        const queryParams = {
+            page: {
+                number: this.page.number, // Page actuelle
+                size: this.page.size // Taille de la page
+            },
+            filter: {
+                name_cont: this.searchTerm // Filtrer par nom contenant le terme de recherche
+            },
+            sort: 'name' // Trier par nom
+        };
+
+        axios.get('https://api.potterdb.com/v1/characters', { params: queryParams })
+            .then(response => {
+                this.characters = response.data.data;
+                this.totalPages = response.data.meta.totalPages;
+            })
+            .catch(error => {
+                console.error(error);
+            });
         },
         nextPage() {
             if (this.page.number < this.totalPages) {
@@ -74,6 +88,12 @@ export default {
             this.page.number = this.totalPages;
             this.fetchCharacters();
         },
+        searchCharacters() {
+        // Réinitialiser la page à 1 à chaque recherche
+        this.page.number = 1;
+        // Appeler la méthode fetchCharacters pour récupérer les données mises à jour
+        this.fetchCharacters();
+    },
     },
 };
 </script>
@@ -115,5 +135,10 @@ input{
 .character-info {
     margin: 0 0 10px;
     font-size: 16px;
+}
+
+.subtitle {
+        font-weight: bold;
+        text-decoration: underline;
 }
 </style>
