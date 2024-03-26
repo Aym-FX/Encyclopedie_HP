@@ -1,6 +1,6 @@
-const axios = require('axios');
+import axios from 'axios';
 
-async function getCharacters() {
+export async function getCharacters() {
     try {
         const response = await axios.get('https://api.potterdb.com/v1/characters');
         return response.data;
@@ -10,7 +10,7 @@ async function getCharacters() {
     }
 }
 
-async function getSpells() {
+export async function getSpells() {
     try {
         const response = await axios.get('https://api.potterdb.com/v1/spells');
         return response.data;
@@ -20,7 +20,7 @@ async function getSpells() {
     }
 }
 
-async function getBooks() {
+export async function getBooks() {
     try {
         const response = await axios.get('https://api.potterdb.com/v1/books');
         return response.data;
@@ -30,7 +30,7 @@ async function getBooks() {
     }
 }
 
-async function getPotions() {
+export async function getPotions() {
     try {
         const response = await axios.get('https://api.potterdb.com/v1/potions');
         return response.data;
@@ -39,10 +39,3 @@ async function getPotions() {
         return null;
     }
 }
-
-module.exports = {
-    getCharacters,
-    getSpells,
-    getBooks,
-    getPotions,
-};
