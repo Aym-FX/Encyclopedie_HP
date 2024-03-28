@@ -1,9 +1,11 @@
+// router.js \\
+
 import { createRouter, createWebHistory } from 'vue-router'
-import Accueil from '../components/Accueil.vue'
-import Character from '../components/character.vue'
-import Potion from '../components/potion.vue'
-import Spell from '../components/spell.vue'
-import Book from '../components/book.vue'
+import Accueil from '../sections/Accueil.vue'
+import Character from '../sections/character.vue'
+import Potion from '../sections/potion.vue'
+import Spell from '../sections/spell.vue'
+import Book from '../sections/book.vue'
 
 const router = createRouter({
   history: createWebHistory(),
