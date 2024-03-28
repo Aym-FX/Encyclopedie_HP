@@ -1,8 +1,10 @@
+<!-- spell.vue -->
+
 <template>
   <div class="spells-page">
     <button class="home-button" @click="goToHome">Retour à l'accueil</button>
     <h1>Page des sorts</h1>
-    <input type="text" v-model="searchTerm" placeholder="Rechercher un sort" @change="searchSpells">
+    <input class="search-bar"ype="text" v-model="searchTerm" placeholder="Rechercher un sort" @change="searchSpells">
     <ul class="spells-list">
       <li class="spell-item" v-for="spell in spells" :key="spell.id">
         <h2 class="item-name"><span class="subtitle">{{ spell.attributes.name }}</span></h2>
@@ -13,20 +15,18 @@
         <p class="item-info"><span class="subtitle">Créateur :</span>{{ spell.attributes.creator || 'Non disponible' }}</p>
       </li>
     </ul>
-    <button @click="goToFirstPage" :disabled="page.number === 1"><<</button>
-    <button @click="previousPage" :disabled="page.number === 1"><</button>
-    <button @click="nextPage" :disabled="page.number === totalPages">></button>
-    <button @click="goToLastPage" :disabled="page.number === totalPages">>></button>
-    <br>
-    <input type="number" v-model.number="page.number" @change="fetchSpells" :min="1" :max="totalPages">
-    <p>Page actuelle : {{ page.number }} / {{ totalPages }}</p>
+    <Pagination :currentPage="page.number" :totalPages="totalPages" @page-changed="pageChanged"></Pagination>
   </div>
 </template>
 
 <script>
+import Pagination from '../components/pagination.vue';
 import axios from 'axios';
 
 export default {
+  components: {
+    Pagination,
+  },
     data() {
         return {
             spells: [],
@@ -34,7 +34,7 @@ export default {
                 number: 1,
                 size: 25,
             },
-            totalPages: 187,
+            totalPages: 13,
             searchTerm: '',
         };
     },
@@ -45,74 +45,51 @@ export default {
         fetchSpells() {
             const queryParams = {
                 page: {
-                    number: this.page.number, // Page actuelle
-                    size: this.page.size // Taille de la page
+                    number: this.page.number,
+                    size: this.page.size
                 },
                 filter: {
-                    name_cont: this.searchTerm // Filtrer par nom contenant le terme de recherche
+                    name_cont: this.searchTerm 
                 },
-                sort: 'name' // Trier par nom
+                sort: 'name'
             };
 
             axios.get('https://api.potterdb.com/v1/spells', { params: queryParams })
                 .then(response => {
                     this.spells = response.data.data;
-                    this.totalPages = response.data.meta.totalPages;
                 })
                 .catch(error => {
                     console.error(error);
                 });
         },
-        nextPage() {
-            if (this.page.number < this.totalPages) {
-                this.page.number++;
-                this.fetchSpells();
-            }
-        },
-        previousPage() {
-            if (this.page.number > 1) {
-                this.page.number--;
-                this.fetchSpells();
-            }
-        },
-        goToFirstPage() {
-            this.page.number = 1;
-            this.fetchSpells();
-        },
-        goToLastPage() {
-            this.page.number = this.totalPages;
+        pageChanged(newPage) {
+            this.page.number = newPage;
             this.fetchSpells();
         },
         searchSpells() {
-            // Réinitialiser la page à 1 à chaque recherche
             this.page.number = 1;
-            // Appeler la méthode fetchSpells pour récupérer les données mises à jour
             this.fetchSpells();
+        },  
+        goToHome() {
+            this.$router.push('/');
         },
     },
 };
 </script>
 
 <style scoped>
-p{
-  color: black;
-}
-h1{
-  color: black;
-}
-input{
-  background-color: #ffffff;
-  color: black;
-}
-.spells-page {
-  padding: 20px;
-  background-color: #f9f9f9;
+body {
+  background-color: #333;
+  color: #fff;
 }
 
 .spells-list {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-gap: 20px;
   list-style-type: none;
   padding: 0;
-  color: black;
+  color: #fff;
 }
 
 .spell-item {
@@ -120,6 +97,7 @@ input{
   padding: 20px;
   border: 1px solid #ddd;
   border-radius: 4px;
+  background-color: #444;
 }
 
 .item-name {
@@ -131,13 +109,27 @@ input{
   margin: 0 0 10px;
   font-size: 16px;
 }
+
 .subtitle {
-    font-weight: bold;
-    text-decoration: underline;
+  font-weight: bold;
+  text-decoration: underline;
 }
+
+button {
+  background-color: #800080;
+  color: #fff;
+}
+
 .home-button {
   float: left;
   margin-right: -150px;
   margin-top: 50px;
+  background-color: #800080;
+  color: #fff;
+}
+.search-bar {
+    width: 60%;
+    height: 20px;
+    border-radius: 15px;
 }
 </style>

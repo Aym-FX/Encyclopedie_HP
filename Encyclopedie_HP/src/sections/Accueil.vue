@@ -1,3 +1,5 @@
+<!-- Accueil.vue -->
+
 <template class="accueil">
     <div class="home">
         <h1>Bienvenue dans l'encyclopédie de Harry Potter</h1>
@@ -28,8 +30,8 @@ export default {
 }
 
 .button-categories {
-  border: 2px solid #7D4FFE;
-  background-color: #7D4FFE;
+  border: 2px solid #800080;
+  background-color: #800080;
   border-radius: 20px;
   color: #fff;
   transition: .3s;
@@ -37,7 +39,11 @@ export default {
   margin: 20px 20px 10px 10px;
 }
 .button-categories:hover {
-  box-shadow: 8px 8px #b195ff;
+  box-shadow: 8px 8px #cc05cc;
   transition: .3s;
+}
+accueil {
+  background-color: #333;
+  color: #fff;
 }
 </style>
